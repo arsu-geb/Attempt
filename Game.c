@@ -1,74 +1,41 @@
 #include <SDL.h>
 #include "Game.h"
 
-//Game::Game()
-//{}
-//Game::~Game()
-//{}
-
-//void init(const char* title, int xpos, int ypos, int width, int height, int fullscreen)
+/**
+* init_instance - initializing SDL2
+* @instance: new instance
+* Return: 0 if it fails, 1 if it's successful.
+*/
 int init_instance(Game *instance)
 {
-	int flags = 0;
-	/*
-	if (fullscreen == 1)
+	/* Initializing SDL */
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
-		flags = SDL_WINDOW_FULLSCREEN;
+		fprintf(stderr, "Unable to initialize SDL: %s\n",
+			SDL_GetError());
+		return (1);
 	}
-	*/
-
-	if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
+	/* Creating a new Window instance */
+	instance->window = SDL_CreateWindow("Maze", SDL_WINDOWPOS_CENTERED,
+					    SDL_WINDOWPOS_CENTERED,
+					    xpos, ypos, SDL_WINDOW_RESIZABLE);
+	if (instance->window == NULL)
 	{
-		printf("Subsystems Initialized!...");
-		
-		instance->window = SDL_CreateWindow("2D Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, xpos, ypos, SDL_WINDOW_RESIZABLE);
-		if (window)
-		{
-			printf("Window created!");
-		}
-
-		renderer = SDL_CreateRenderer(instance->window, -1, 0);
-		if (renderer)
-		{
-			SDL_SetRenderDrawColor(renderer, 255, 0, 255, 0);
-			printf("Renderer created!");
-		}
-
-		isRunning = TRUE;
-	} else {
-		isRunning = FALSE
-			;
+		fprintf(stderr, "SDL_CreateWindow Error: %s\n",
+			SDL_GetError());
+		SDL_Quit();
+		return (1);
 	}
-}
-
-int handleEvents()
-{
-	SDL_Event event;
-	SDL_PollEvent(&event);
-	switch (event.type) {
-		case SDL_QUIT:
-			isRunning = FALSE;
-			break;
-		default:
-			break;
+	/* Create a new Renderer instance linked to the Window */
+	instance->renderer = SDL_CreateRenderer(instance->window, -1,
+		    SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (instance->renderer == NULL)
+	{
+		SDL_DestroyWindow(instance->window);
+		fprintf(stderr, "SDL_CreateRenderer Error: %s\n",
+			SDL_GetError());
+		SDL_Quit();
+		return (1);
 	}
-}
-
-void update()
-{}
-
-void render(Game *instance)
-{
-	SDL_RenderClear(instance->renderer);
-	//this is where we would add stuff to render
-	SDL_RenderPresent(renderer);
-
-}
-
-void clean(Game *instance)
-{
-	SDL_DestroyWindow(instance->window);
-	SDL_DestroyRenderer(instance->renderer);
-	SDL_Quit();
-	printf("Game Cleaned");
+	return (0);
 }
